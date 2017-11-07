@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="@string/pref_key_markers_type"
+        android:title="@string/pref_title_markers_type"
+        android:summary="@string/pref_summary_markers_type"
+        android:dialogTitle="@string/pref_dialog_title_markers_type"
+        android:entries="@array/pref_entries_marker_types"
+        android:entryValues="@array/pref_values_markers_types"
+        android:defaultValue="@string/pref_default_markers_type" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/pref_key_friends_photo"
+        android:summary="@string/pref_summary_friends_photo"
+        android:title="@string/pref_title_friends_photo" />
+
+    <Preference
+        android:key="@string/pref_key_vk_sign_in"
+        android:title="@string/pref_title_vk_sign_in" />
+
+</PreferenceScreen>

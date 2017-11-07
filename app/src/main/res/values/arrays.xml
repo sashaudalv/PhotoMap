@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_values_markers_types">
+        <item>default_markers_type</item>
+        <item>photo_markers_type</item>
+    </string-array>
+    <string-array name="pref_entries_marker_types">
+        <item>Default markers type</item>
+        <item>Photo markers type</item>
+    </string-array>
+</resources>
