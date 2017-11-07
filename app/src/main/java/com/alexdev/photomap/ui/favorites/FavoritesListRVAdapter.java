@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.alexdev.photomap.R;
 import com.alexdev.photomap.models.Photo;
 import com.alexdev.photomap.models.User;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -78,12 +79,21 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
     public void onBindViewHolder(ViewHolder holder, int position) {
         User itemUser = mData.get(position).first;
         Photo itemPhoto = mData.get(position).second;
+        Picasso.with(mContext)
+                .load(itemUser.getAvatar())
+                .resize(100, 100)
+                .centerCrop()
+                .error(R.drawable.ic_account_circle_blue_40dp)
+                .into(holder.avatarView);
         holder.avatarView.setOnClickListener(v -> mListener.onItemUserClick(position));
         holder.nameTextView.setText(itemUser.getName());
         holder.dateTextView.setText(
                 SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
                         .format(new Date(itemPhoto.getDate()))
         );
+        Picasso.with(mContext)
+                .load(itemPhoto.getUrl())
+                .into(holder.photoView);
         holder.photoView.setOnClickListener(v -> mListener.onItemPhotoClick(position));
         if (itemPhoto.getText() == null) {
             holder.photoText.setVisibility(View.GONE);

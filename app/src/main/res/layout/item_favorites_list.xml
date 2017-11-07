@@ -45,13 +45,13 @@
             android:id="@+id/avatar_image"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@mipmap/ic_launcher" />
+            android:layout_marginLeft="16dp"
+            app:srcCompat="@drawable/ic_account_circle_blue_40dp"/>
 
         <ImageView
             android:id="@+id/photo_image"
@@ -60,11 +60,11 @@
             android:layout_marginTop="16dp"
             android:cropToPadding="false"
             android:scaleType="centerCrop"
+            android:background="@color/colorImageBackground"
             app:layout_constraintDimensionRatio="H,16:9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/avatar_image"
-            app:srcCompat="@drawable/ic_launcher_background" />
+            app:layout_constraintTop_toBottomOf="@+id/avatar_image" />
 
         <TextView
             android:id="@+id/photo_text_textview"

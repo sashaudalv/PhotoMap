@@ -7,4 +7,6 @@
     <color name="colorIconRed">#F44336</color>
     <color name="colorPrimaryText">#de000000</color>
     <color name="colorSecondaryText">#8a000000</color>
+    <color name="colorImageBackground">#F5F5F5</color>
+    <color name="colorLightBlue">#03A9F4</color>
 </resources>
