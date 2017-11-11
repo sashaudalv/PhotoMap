@@ -19,4 +19,5 @@
     <string name="pref_default_markers_type">default_markers_type</string>
 
     <string name="hello_blank_fragment">helllo</string>
+    <string name="hint_empty_list">There are no items in the list at the moment</string>
 </resources>

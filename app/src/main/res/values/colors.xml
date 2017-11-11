@@ -9,4 +9,5 @@
     <color name="colorSecondaryText">#8a000000</color>
     <color name="colorImageBackground">#F5F5F5</color>
     <color name="colorLightBlue">#03A9F4</color>
+    <color name="colorHintGrey">#757575</color>
 </resources>

@@ -31,6 +31,8 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
 
     @BindView(R.id.favorites_rv)
     RecyclerView mFavoritesRV;
+    @BindView(R.id.empty_list_hint)
+    ViewGroup mEmptyListHint;
     private LayoutManager mLayoutManager;
     private Adapter mAdapter;
     private List<Pair<User, Photo>> mFavoritesList;
@@ -65,12 +67,18 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         mFavoritesRV.setLayoutManager(mLayoutManager);
         mAdapter = new FavoritesListRVAdapter(mFavoritesList, getContext(), this);
         mFavoritesRV.setAdapter(mAdapter);
+        if (mFavoritesList.isEmpty()) showEmptyListHint();
         return view;
+    }
+
+    private void showEmptyListHint() {
+        mFavoritesRV.setVisibility(View.GONE);
+        mEmptyListHint.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onFragmentReselected() {
-        mLayoutManager.scrollToPosition(0);
+        if (!mFavoritesList.isEmpty()) mLayoutManager.scrollToPosition(0);
     }
 
     @Override

@@ -13,4 +13,8 @@
         android:paddingTop="4dp"
         android:scrollbars="vertical"/>
 
+    <include layout="@layout/layout_empty_list_hint"
+        android:id="@+id/empty_list_hint"
+        android:visibility="gone"/>
+
 </FrameLayout>
