@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
@@ -33,6 +34,8 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
     RecyclerView mFavoritesRV;
     @BindView(R.id.empty_list_hint)
     ViewGroup mEmptyListHint;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
     private LayoutManager mLayoutManager;
     private Adapter mAdapter;
     private List<Pair<User, Photo>> mFavoritesList;
@@ -68,12 +71,17 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         mAdapter = new FavoritesListRVAdapter(mFavoritesList, getContext(), this);
         mFavoritesRV.setAdapter(mAdapter);
         if (mFavoritesList.isEmpty()) showEmptyListHint();
+        mSwipeRefreshLayout.setOnRefreshListener(this::onRefresh);
         return view;
     }
 
     private void showEmptyListHint() {
         mFavoritesRV.setVisibility(View.GONE);
         mEmptyListHint.setVisibility(View.VISIBLE);
+    }
+
+    private void onRefresh() {
+        //TODO do smth and update state
     }
 
     @Override
