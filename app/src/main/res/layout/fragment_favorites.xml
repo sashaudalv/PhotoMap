@@ -10,9 +10,9 @@
         android:visibility="gone" />
 
     <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/swipe_refresh">
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/favorites_rv"
@@ -20,6 +20,8 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
             android:paddingTop="4dp"
             android:scrollbars="vertical" />
 
