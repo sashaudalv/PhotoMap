@@ -1,9 +1,6 @@
 package com.alexdev.photomap.ui.favorites;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +13,7 @@ import android.widget.TextView;
 import com.alexdev.photomap.R;
 import com.alexdev.photomap.models.Photo;
 import com.alexdev.photomap.models.User;
+import com.alexdev.photomap.utils.UiUtils;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
@@ -79,47 +77,54 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
     public void onBindViewHolder(ViewHolder holder, int position) {
         User itemUser = mData.get(position).first;
         Photo itemPhoto = mData.get(position).second;
-        Picasso.with(mContext)
-                .load(itemUser.getAvatar())
-                .resize(100, 100)
-                .centerCrop()
-                .error(R.drawable.ic_account_circle_blue_40dp)
-                .into(holder.avatarView);
-        holder.avatarView.setOnClickListener(v -> mListener.onItemUserClick(position));
+        setAvatarView(holder.avatarView, itemUser, position);
         holder.nameTextView.setText(itemUser.getName());
         holder.dateTextView.setText(
                 SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
                         .format(new Date(itemPhoto.getDate()))
         );
-        Picasso.with(mContext)
-                .load(itemPhoto.getUrl())
-                .into(holder.photoView);
-        holder.photoView.setOnClickListener(v -> mListener.onItemPhotoClick(position));
+        setPhotoView(holder.photoView, itemPhoto, position);
         if (itemPhoto.getText() == null) {
             holder.photoText.setVisibility(View.GONE);
         } else {
             holder.photoText.setText(itemPhoto.getText());
         }
-        switchDrawableTint(holder.likeButton.getDrawable(), mContext, itemPhoto.getIsInFavorites(),
-                R.color.colorIconGrey, R.color.colorIconRed);
-        holder.likeButton.setOnClickListener(v -> {
-            itemPhoto.setIsInFavorites(!itemPhoto.getIsInFavorites());
-            switchDrawableTint(
-                    holder.likeButton.getDrawable(),
-                    mContext,
-                    itemPhoto.getIsInFavorites(),
-                    R.color.colorIconGrey,
-                    R.color.colorIconRed
-            );
-        });
+       setLikeButton(holder.likeButton, itemPhoto);
     }
 
-    private void switchDrawableTint(Drawable drawable, Context context, boolean switcher, int colorResId1, int colorResId2) {
-        DrawableCompat.setTint(drawable.mutate(), ContextCompat.getColor(context, switcher ? colorResId2 : colorResId1));
+    private void setAvatarView(ImageView avatarView, User user, int position) {
+        Picasso.with(mContext)
+                .load(user.getAvatar())
+                .resize(100, 100)
+                .centerCrop()
+                .placeholder(R.drawable.ic_account_circle_blue_40dp)
+                .error(R.drawable.ic_account_circle_blue_40dp)
+                .into(avatarView);
+        avatarView.setOnClickListener(v -> mListener.onItemUserClick(position));
+    }
+
+    private void setPhotoView(ImageView photoView, Photo photo, int position) {
+        Picasso.with(mContext)
+                .load(photo.getUrl())
+                .error(R.drawable.ic_error_outline_grey_24dp)
+                .into(photoView);
+        photoView.setOnClickListener(v -> mListener.onItemPhotoClick(position));
+    }
+
+    private void setLikeButton(ImageButton likeButton, Photo photo) {
+        UiUtils.switchDrawableTint(likeButton.getDrawable(), mContext, photo.getIsInFavorites(),
+                R.color.colorIconGrey, R.color.colorIconRed);
+        likeButton.setOnClickListener(v -> {
+            //todo save or delete this data into db
+            photo.setIsInFavorites(!photo.getIsInFavorites());
+            UiUtils.switchDrawableTint(likeButton.getDrawable(), mContext, photo.getIsInFavorites(),
+                    R.color.colorIconGrey, R.color.colorIconRed);
+        });
     }
 
     @Override
     public int getItemCount() {
         return mData.size();
     }
+
 }

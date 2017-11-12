@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.LayoutManager;
@@ -46,7 +45,7 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         mFavoritesList.add(new Pair<>(new User(1, "pavel", "durov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
                 new Photo(1, "https://b1.filmpro.ru/c/455897.700xp.jpg", 1, "Lorem ipsum dolor sit amet", 1509980225786L, 0L, true)));
         mFavoritesList.add(new Pair<>(new User(150150, "nik", "safronov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(2, "https://b1.filmpro.ru/c/455897.700xp.jpg", 150150, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit", 1509980225786L, 0L, true)));
+                new Photo(2, "https://b1.filmpro.ru/c/455097.700xp.jpg", 150150, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit", 1509980225786L, 0L, true)));
         mFavoritesList.add(new Pair<>(new User(1, "pavel", "durov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
                 new Photo(1, "https://b1.filmpro.ru/c/45587.700xp.jpg", 1, "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium", 1509980225786L, 0L, true)));
         mFavoritesList.add(new Pair<>(new User(150150, "nik", "safronov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
@@ -71,14 +70,15 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites, container, false);
         ButterKnife.bind(this, view);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mLayoutManager = new LinearLayoutManager(getContext());
-        } else {
-            mLayoutManager = new StaggeredGridLayoutManager(
-                    getResources().getInteger(R.integer.landscape_grid_span_count),
-                    StaggeredGridLayoutManager.VERTICAL
-            );
-        }
+
+        mLayoutManager = new StaggeredGridLayoutManager(
+                getResources().getInteger(
+                        getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ?
+                                R.integer.portrait_grid_span_count :
+                                R.integer.landscape_grid_span_count
+                ),
+                StaggeredGridLayoutManager.VERTICAL
+        );
         mFavoritesRV.setLayoutManager(mLayoutManager);
         mAdapter = new FavoritesListRVAdapter(mFavoritesList, getContext(), this);
         mFavoritesRV.setAdapter(mAdapter);
@@ -87,8 +87,14 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //todo upload fresh data from db
+        //mAdapter.notifyDataSetChanged();
+    }
+
     private void showEmptyListHint() {
-        mFavoritesRV.setVisibility(View.GONE);
         mEmptyListHint.setVisibility(View.VISIBLE);
     }
 
