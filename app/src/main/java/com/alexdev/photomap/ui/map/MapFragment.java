@@ -2,6 +2,7 @@ package com.alexdev.photomap.ui.map;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import butterknife.ButterKnife;
 
 public class MapFragment extends Fragment implements ReselectableFragment, OnMapReadyCallback {
 
+    public static final int PERMISSION_REQUEST_ACCESS_COARSE_LOCATION = 1234;
     private final static float ZOOM_WORLD = 1;
     private final static float ZOOM_COUNTRY = 5;
     private final static float ZOOM_CITY = 10;
@@ -56,19 +58,10 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
         super.onCreate(savedInstanceState);
         mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @SuppressLint("MissingPermission")
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            // TODO: Consider calling request permissions
-                            //    ActivityCompat#requestPermissions
-                            // here to request the missing permissions, and then overriding
-                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                            //                                          int[] grantResults)
-                            // to handle the case where the user grants the permission. See the documentation
-                            // for ActivityCompat#requestPermissions for more details.
-                            return;
-                        }
-
+                        if (!checkAndRequestPermissions()) return;
                         //TODO: deprecated call
                         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                         if (savedInstanceState == null) moveMapCameraToCurrentLocation();
@@ -76,7 +69,7 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
 
                     @Override
                     public void onConnectionSuspended(int i) {
-                        //TODO
+                        if (savedInstanceState == null) moveMapCameraToCurrentLocation();
                     }
                 })
                 .addApi(LocationServices.API)
@@ -117,19 +110,11 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
         moveMapCameraToCurrentLocation();
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
+        if (!checkAndRequestPermissions()) return;
         mMap.setMyLocationEnabled(true);
     }
 
@@ -174,4 +159,28 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
         super.onLowMemory();
         mMapView.onLowMemory();
     }
+
+    private boolean checkAndRequestPermissions() {
+        if (ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    PERMISSION_REQUEST_ACCESS_COARSE_LOCATION);
+            return false;
+        }
+        return true;
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_ACCESS_COARSE_LOCATION
+                && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            //TODO: deprecated call
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            moveMapCameraToCurrentLocation();
+            mMap.setMyLocationEnabled(true);
+        }
+    }
+
 }
