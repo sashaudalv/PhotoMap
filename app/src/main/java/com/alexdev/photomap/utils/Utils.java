@@ -13,6 +13,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 
 import com.alexdev.photomap.R;
+import com.alexdev.photomap.utils.exceptions.DirectoryCreationNotPermittedException;
+import com.alexdev.photomap.utils.exceptions.ThisDrawableNotSupportedException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,9 +29,10 @@ public final class Utils {
     private Utils() {
     }
 
-    public static File saveDrawableToFile(Context context, Drawable drawable,
-                                          boolean isTemporaryFile) throws IOException {
-        if (!(drawable instanceof BitmapDrawable)) return null;
+    @NonNull
+    public static File saveDrawableToFile(Context context, Drawable drawable, boolean isTemporaryFile)
+            throws IOException, DirectoryCreationNotPermittedException, ThisDrawableNotSupportedException {
+        if (!(drawable instanceof BitmapDrawable)) throw new ThisDrawableNotSupportedException();
 
         BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
         Bitmap bitmap = bitmapDrawable.getBitmap();
@@ -39,7 +42,7 @@ public final class Utils {
                 context.getString(R.string.app_name));
         if (!appDirectory.exists()) {
             if (!appDirectory.mkdirs()) {
-                return null;
+                throw new DirectoryCreationNotPermittedException();
             }
         }
 

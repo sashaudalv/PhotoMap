@@ -20,15 +20,19 @@ import com.alexdev.photomap.models.User;
 import com.alexdev.photomap.ui.user.UserDetailsActivity;
 import com.alexdev.photomap.utils.UiUtils;
 import com.alexdev.photomap.utils.Utils;
+import com.alexdev.photomap.utils.exceptions.DirectoryCreationNotPermittedException;
+import com.alexdev.photomap.utils.exceptions.ThisDrawableNotSupportedException;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class PhotoViewerActivity extends AppCompatActivity {
 
@@ -112,25 +116,33 @@ public class PhotoViewerActivity extends AppCompatActivity {
 
         if (!isPermissionGranted) return;
 
-        //todo make it rx
-        File savedFile = null;
-        try {
-            savedFile = Utils.saveDrawableToFile(this, mPhotoView.getDrawable(), false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Observable.defer(() -> {
+            try {
+                return Observable.just(Utils.saveDrawableToFile(this, mPhotoView.getDrawable(), false));
+            } catch (IOException | ThisDrawableNotSupportedException | DirectoryCreationNotPermittedException e) {
+                e.printStackTrace();
+                return Observable.error(e);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(savedFile -> {
+                            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                            intent.setData(Uri.fromFile(savedFile));
+                            sendBroadcast(intent);
 
-        if (savedFile != null) {
-            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            intent.setData(Uri.fromFile(savedFile));
-            sendBroadcast(intent);
-        }
-
-        Toast.makeText(
-                this,
-                savedFile != null ? R.string.toast_download_success : R.string.toast_download_error,
-                Toast.LENGTH_SHORT
-        ).show();
+                            Toast.makeText(
+                                    this,
+                                    R.string.toast_download_success,
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        },
+                        error -> Toast.makeText(
+                                this,
+                                R.string.toast_download_error,
+                                Toast.LENGTH_SHORT
+                        ).show()
+                );
     }
 
     private void handleBottomContainerDisplay() {
