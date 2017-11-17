@@ -26,6 +26,6 @@
     
     <string name="chooser_title_share_photo">Share photo</string>
     
-    <string name="template_sharing_photo_text">Origin: %s\nPhoto taken by: %s\nSent by Photo Map application.</string>
-    <string name="template_sharing_photo_text_with_description">Origin: %s\n%s\nPhoto taken by: %s\nSent by Photo Map application.</string>
+    <string name="template_sharing_photo_text">Origin: %s\nPhoto taken by: %s\nSent from Photo Map application.</string>
+    <string name="template_sharing_photo_text_with_description">Origin: %s\n%s\nPhoto taken by: %s\nSent from Photo Map application.</string>
 </resources>
