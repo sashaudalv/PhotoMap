@@ -1,8 +1,11 @@
 package com.alexdev.photomap.ui.favorites;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
@@ -14,6 +17,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.alexdev.photomap.R;
 import com.alexdev.photomap.models.Photo;
@@ -21,15 +25,26 @@ import com.alexdev.photomap.models.User;
 import com.alexdev.photomap.ui.interfaces.ReselectableFragment;
 import com.alexdev.photomap.ui.photo.PhotoViewerActivity;
 import com.alexdev.photomap.ui.user.UserDetailsActivity;
+import com.alexdev.photomap.utils.Utils;
+import com.alexdev.photomap.utils.exceptions.DirectoryCreationNotPermittedException;
+import com.alexdev.photomap.utils.exceptions.ThisDrawableNotSupportedException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class FavoritesFragment extends Fragment implements ReselectableFragment, FavoritesListRVAdapter.OnItemClickListener {
+
+    private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 123456;
+
 
     @BindView(R.id.favorites_rv)
     RecyclerView mFavoritesRV;
@@ -87,13 +102,6 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        //todo upload fresh data from db
-        //mAdapter.notifyDataSetChanged();
-    }
-
     private void showEmptyListHint() {
         mEmptyListHint.setVisibility(View.VISIBLE);
     }
@@ -111,6 +119,7 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
     public void onItemPhotoClick(int position) {
         Intent intent = new Intent(getContext(), PhotoViewerActivity.class);
         intent.putExtra(PhotoViewerActivity.EXTRA_PHOTO, mFavoritesList.get(position).second);
+        intent.putExtra(PhotoViewerActivity.EXTRA_USER, mFavoritesList.get(position).first);
         startActivity(intent);
     }
 
@@ -119,5 +128,57 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         Intent intent = new Intent(getContext(), UserDetailsActivity.class);
         intent.putExtra(UserDetailsActivity.EXTRA_USER, mFavoritesList.get(position).first);
         startActivity(intent);
+    }
+
+    @Override
+    public void onItemLikeClick(int position) {
+        // TODO: add or delete item from db
+    }
+
+    @Override
+    public void onItemShareClick(int position, Drawable sharingDrawable) {
+        boolean isPermissionGranted = Utils.checkAndRequestPermissions(this,
+                PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (!isPermissionGranted) return;
+
+        User itemUser = mFavoritesList.get(position).first;
+        Photo itemPhoto = mFavoritesList.get(position).second;
+        String sharingText;
+        if (itemPhoto.getText() == null) {
+            sharingText = String.format(Locale.getDefault(),
+                    getString(R.string.template_sharing_photo_text),
+                    itemPhoto.getUrl(), itemUser.getUrl());
+        } else {
+            sharingText = String.format(Locale.getDefault(),
+                    getString(R.string.template_sharing_photo_text_with_description),
+                    itemPhoto.getUrl(), itemPhoto.getText(), itemUser.getUrl());
+        }
+
+        Observable.defer(() -> {
+            try {
+                return Observable.just(Utils.saveDrawableToFile(getContext(), sharingDrawable, true));
+            } catch (IOException | ThisDrawableNotSupportedException | DirectoryCreationNotPermittedException e) {
+                e.printStackTrace();
+                return Observable.error(e);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(savedFile -> {
+                            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                            sharingIntent.putExtra(Intent.EXTRA_TEXT, sharingText);
+                            sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(savedFile));
+                            sharingIntent.setType("image/jpeg");
+                            sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            startActivity(Intent.createChooser(sharingIntent, getString(R.string.chooser_title_share_photo)));
+                        },
+                        error -> Toast.makeText(
+                                getContext(),
+                                R.string.toast_download_error,
+                                Toast.LENGTH_SHORT
+                        ).show()
+                );
     }
 }

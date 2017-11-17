@@ -1,6 +1,7 @@
 package com.alexdev.photomap.ui.favorites;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,10 +42,16 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
         void onItemPhotoClick(int position);
 
         void onItemUserClick(int position);
+
+        void onItemLikeClick(int position);
+
+        void onItemShareClick(int position, Drawable sharingDrawable);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.header)
+        ViewGroup header;
         @BindView(R.id.name_textview)
         TextView nameTextView;
         @BindView(R.id.avatar_image)
@@ -77,7 +84,9 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
     public void onBindViewHolder(ViewHolder holder, int position) {
         User itemUser = mData.get(position).first;
         Photo itemPhoto = mData.get(position).second;
-        setAvatarView(holder.avatarView, itemUser, position);
+
+        holder.header.setOnClickListener(v -> mListener.onItemUserClick(position));
+        setAvatarView(holder.avatarView, itemUser);
         holder.nameTextView.setText(itemUser.getName());
         holder.dateTextView.setText(
                 SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
@@ -89,10 +98,12 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
         } else {
             holder.photoText.setText(itemPhoto.getText());
         }
-       setLikeButton(holder.likeButton, itemPhoto);
+        setLikeButton(holder.likeButton, itemPhoto, position);
+        holder.shareButton.setOnClickListener(v -> mListener.onItemShareClick(position,
+                holder.photoView.getDrawable()));
     }
 
-    private void setAvatarView(ImageView avatarView, User user, int position) {
+    private void setAvatarView(ImageView avatarView, User user) {
         Picasso.with(mContext)
                 .load(user.getAvatar())
                 .resize(100, 100)
@@ -100,7 +111,6 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
                 .placeholder(R.drawable.ic_account_circle_blue_40dp)
                 .error(R.drawable.ic_account_circle_blue_40dp)
                 .into(avatarView);
-        avatarView.setOnClickListener(v -> mListener.onItemUserClick(position));
     }
 
     private void setPhotoView(ImageView photoView, Photo photo, int position) {
@@ -111,14 +121,14 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
         photoView.setOnClickListener(v -> mListener.onItemPhotoClick(position));
     }
 
-    private void setLikeButton(ImageButton likeButton, Photo photo) {
+    private void setLikeButton(ImageButton likeButton, Photo photo, int position) {
         UiUtils.switchDrawableTint(likeButton.getDrawable(), mContext, photo.getIsInFavorites(),
                 R.color.colorIconGrey, R.color.colorIconRed);
         likeButton.setOnClickListener(v -> {
-            //todo save or delete this data into db
             photo.setIsInFavorites(!photo.getIsInFavorites());
             UiUtils.switchDrawableTint(likeButton.getDrawable(), mContext, photo.getIsInFavorites(),
                     R.color.colorIconGrey, R.color.colorIconRed);
+            mListener.onItemLikeClick(position);
         });
     }
 
