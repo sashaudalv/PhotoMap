@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Photo map</string>
 
+    <string name="file_provider_authority">${applicationId}.provider</string>
+
     <string name="title_activity_user_details">Photo owner</string>
     <string name="title_navigation_map">Map</string>
     <string name="title_navigation_favorites">Favorites</string>

@@ -38,7 +38,7 @@ public class PhotoViewerActivity extends AppCompatActivity {
 
     public static final String EXTRA_PHOTO = "extra_photo";
     public static final String EXTRA_USER = "extra_user";
-    private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 12345;
+    private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 333;
 
     @BindView(R.id.bottom_buttons_container)
     ViewGroup mBottomButtons;

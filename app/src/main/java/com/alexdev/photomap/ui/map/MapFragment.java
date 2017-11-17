@@ -30,7 +30,7 @@ import butterknife.ButterKnife;
 
 public class MapFragment extends Fragment implements ReselectableFragment, OnMapReadyCallback {
 
-    public static final int PERMISSION_REQUEST_ACCESS_COARSE_LOCATION = 1234;
+    public static final int PERMISSION_REQUEST_ACCESS_COARSE_LOCATION = 111;
     private final static float ZOOM_WORLD = 1;
     private final static float ZOOM_COUNTRY = 5;
     private final static float ZOOM_CITY = 10;

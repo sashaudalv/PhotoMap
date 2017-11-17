@@ -5,9 +5,9 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
@@ -43,7 +43,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class FavoritesFragment extends Fragment implements ReselectableFragment, FavoritesListRVAdapter.OnItemClickListener {
 
-    private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 123456;
+    private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 222;
 
 
     @BindView(R.id.favorites_rv)
@@ -169,7 +169,8 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
                 .subscribe(savedFile -> {
                             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
                             sharingIntent.putExtra(Intent.EXTRA_TEXT, sharingText);
-                            sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(savedFile));
+                            sharingIntent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(getContext(),
+                                    getString(R.string.file_provider_authority), savedFile));
                             sharingIntent.setType("image/jpeg");
                             sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                             startActivity(Intent.createChooser(sharingIntent, getString(R.string.chooser_title_share_photo)));
