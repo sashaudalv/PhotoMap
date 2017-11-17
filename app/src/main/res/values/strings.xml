@@ -22,4 +22,5 @@
 
     <string name="toast_download_success">Successful download</string>
     <string name="toast_download_error">Download error</string>
+    <string name="toast_available_soon">Will be available soon!</string>
 </resources>
