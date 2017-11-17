@@ -8,7 +8,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.alexdev.photomap.R;
 import com.alexdev.photomap.ui.interfaces.ReselectableFragment;
+import com.alexdev.photomap.utils.Utils;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -61,7 +61,12 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        if (!checkAndRequestPermissions()) return;
+                        boolean isPermissionGranted = Utils.checkAndRequestPermissions(MapFragment.this,
+                                PERMISSION_REQUEST_ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION);
+
+                        if (!isPermissionGranted) return;
+
                         //TODO: deprecated call
                         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                         if (savedInstanceState == null) moveMapCameraToCurrentLocation();
@@ -114,7 +119,13 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if (!checkAndRequestPermissions()) return;
+
+        boolean isPermissionGranted = Utils.checkAndRequestPermissions(this,
+                PERMISSION_REQUEST_ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
+
+        if (!isPermissionGranted) return;
+
         mMap.setMyLocationEnabled(true);
     }
 
@@ -158,16 +169,6 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
-    }
-
-    private boolean checkAndRequestPermissions() {
-        if (ActivityCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    PERMISSION_REQUEST_ACCESS_COARSE_LOCATION);
-            return false;
-        }
-        return true;
     }
 
     @SuppressLint("MissingPermission")
