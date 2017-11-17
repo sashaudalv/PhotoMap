@@ -1,11 +1,11 @@
 package com.alexdev.photomap.ui.photo;
 
+import android.Manifest;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,16 +16,16 @@ import android.widget.Toast;
 
 import com.alexdev.photomap.R;
 import com.alexdev.photomap.models.Photo;
+import com.alexdev.photomap.models.User;
 import com.alexdev.photomap.ui.user.UserDetailsActivity;
 import com.alexdev.photomap.utils.UiUtils;
+import com.alexdev.photomap.utils.Utils;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +33,8 @@ import butterknife.ButterKnife;
 public class PhotoViewerActivity extends AppCompatActivity {
 
     public static final String EXTRA_PHOTO = "extra_photo";
+    public static final String EXTRA_USER = "extra_user";
+    private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 12345;
 
     @BindView(R.id.bottom_buttons_container)
     ViewGroup mBottomButtons;
@@ -47,6 +49,7 @@ public class PhotoViewerActivity extends AppCompatActivity {
     @BindView(R.id.download_button)
     ImageButton mDownloadBtn;
     private Photo mPhoto;
+    private User mUser;
     private boolean mIsBottomContainerShown;
 
     @Override
@@ -56,6 +59,7 @@ public class PhotoViewerActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mPhoto = getIntent().getParcelableExtra(EXTRA_PHOTO);
+        mUser = getIntent().getParcelableExtra(EXTRA_USER);
 
         if (mPhoto != null) {
             Picasso.with(this)
@@ -93,50 +97,38 @@ public class PhotoViewerActivity extends AppCompatActivity {
 
     private void openUserDetails() {
         Intent intent = new Intent(this, UserDetailsActivity.class);
-        intent.putExtra(UserDetailsActivity.EXTRA_USER_ID, mPhoto.getOwnerId());
+        if (mUser == null) {
+            intent.putExtra(UserDetailsActivity.EXTRA_USER_ID, mPhoto.getOwnerId());
+        } else {
+            intent.putExtra(UserDetailsActivity.EXTRA_USER, mUser);
+        }
         startActivity(intent);
     }
 
     private void downloadPhoto() {
+        boolean isPermissionGranted = Utils.checkAndRequestPermissions(this,
+                PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (!isPermissionGranted) return;
+
         //todo make it rx
-        //todo show runtime permission dialog else return if no permission
-
-        if (!(mPhotoView.getDrawable() instanceof BitmapDrawable)) return;
-
-        BitmapDrawable bitmapDrawable = (BitmapDrawable) mPhotoView.getDrawable();
-        Bitmap bitmap = bitmapDrawable.getBitmap();
-
-        File storageDirectory = Environment.getExternalStorageDirectory();
-        File appDirectory = new File(storageDirectory.getAbsolutePath() + "/" + getString(R.string.app_name));
-        if (!appDirectory.exists()) {
-            if (!appDirectory.mkdirs()) {
-                return;
-            }
-        }
-        String fileName = String.format(Locale.getDefault(), "%d.jpg", System.currentTimeMillis());
-        File outFile = new File(appDirectory, fileName);
-        boolean isSuccessfulDownload = false;
-        try (FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
-            bitmap.compress(
-                    Bitmap.CompressFormat.JPEG,
-                    getResources().getInteger(R.integer.picture_downloading_quality),
-                    fileOutputStream
-            );
-            fileOutputStream.flush();
-            isSuccessfulDownload = true;
+        File savedFile = null;
+        try {
+            savedFile = Utils.saveDrawableToFile(this, mPhotoView.getDrawable(), false);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (isSuccessfulDownload) {
+        if (savedFile != null) {
             Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            intent.setData(Uri.fromFile(outFile));
+            intent.setData(Uri.fromFile(savedFile));
             sendBroadcast(intent);
         }
 
         Toast.makeText(
                 this,
-                isSuccessfulDownload ? R.string.toast_download_success : R.string.toast_download_error,
+                savedFile != null ? R.string.toast_download_success : R.string.toast_download_error,
                 Toast.LENGTH_SHORT
         ).show();
     }
@@ -148,6 +140,15 @@ public class PhotoViewerActivity extends AppCompatActivity {
             mBottomButtons.setVisibility(View.VISIBLE);
         }
         mIsBottomContainerShown = !mIsBottomContainerShown;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE
+                && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            downloadPhoto();
+        }
     }
 
     @Override
