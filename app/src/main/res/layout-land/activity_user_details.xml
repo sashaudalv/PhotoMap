@@ -13,12 +13,16 @@
 
         <ImageView
             android:id="@+id/avatar_image"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:background="@color/colorImageBackground"
             android:scaleType="centerCrop"
-            app:layout_constraintDimensionRatio="H,4:3"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="H,"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,17 +31,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginStart="8dp"
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="2"
             android:text="Fillary Korokevich"
             android:textColor="@color/colorSecondaryText"
             android:textSize="@dimen/primary_title_text_size"
+            app:layout_constraintBottom_toBottomOf="@+id/avatar_image"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/avatar_image" />
+            app:layout_constraintStart_toEndOf="@+id/avatar_image"
+            app:layout_constraintTop_toTopOf="@+id/avatar_image" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/open_vk_fab"

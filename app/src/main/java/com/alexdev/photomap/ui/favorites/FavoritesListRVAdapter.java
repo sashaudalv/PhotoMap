@@ -52,7 +52,7 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
 
         @BindView(R.id.header)
         ViewGroup header;
-        @BindView(R.id.name_textview)
+        @BindView(R.id.name_text_view)
         TextView nameTextView;
         @BindView(R.id.avatar_image)
         ImageView avatarView;
