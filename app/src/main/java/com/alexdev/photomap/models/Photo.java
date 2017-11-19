@@ -4,40 +4,66 @@ package com.alexdev.photomap.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.util.ObjectsCompat;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.Arrays;
 
 public class Photo implements Parcelable {
 
-    private final int id;
+    private transient final int id;
+    @SerializedName("photo_604")
+    @Expose
     private final String url;
-    private final int owner_id;
+    @SerializedName("owner_id")
+    @Expose
+    private final long ownerSocialId;
+    @SerializedName("text")
+    @Expose
     @Nullable
     private final String text;
+    @SerializedName("lat")
+    @Expose
+    private final double latitude;
+    @SerializedName("long")
+    @Expose
+    private final double longitude;
+    @SerializedName("date")
+    @Expose
     private final long date;
-    private final long saving_date;
-    private boolean is_in_favorites;
+    private transient long savingDate;
+    private transient boolean isInFavorites;
 
-    public Photo(int id, String url, int ownerId, @Nullable String text, long date, long saving_date, boolean is_in_favorites) {
+    public Photo(int id, String url, long ownerSocialId, @Nullable String text, double latitude,
+                 double longitude, long date, long savingDate, boolean isInFavorites) {
         this.id = id;
         this.url = url;
-        this.owner_id = ownerId;
+        this.ownerSocialId = ownerSocialId;
         this.text = text;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.date = date;
-        this.saving_date = saving_date;
-        this.is_in_favorites = is_in_favorites;
+        this.savingDate = savingDate;
+        this.isInFavorites = isInFavorites;
     }
 
-    public Photo(int id, String url, int ownerId, @Nullable String text, long date) {
-        this(id, url, ownerId, text, date, 0L, false);
+    public Photo(String url, long ownerSocialId, @Nullable String text, double latitude,
+                 double longitude, long date) {
+        this(0, url, ownerSocialId, text, latitude, longitude, date, 0L, false);
     }
 
     private Photo(Parcel in) {
         id = in.readInt();
         url = in.readString();
-        owner_id = in.readInt();
+        ownerSocialId = in.readLong();
         text = in.readString();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
         date = in.readLong();
-        saving_date = in.readLong();
-        is_in_favorites = in.readByte() != 0;
+        savingDate = in.readLong();
+        isInFavorites = in.readByte() != 0;
     }
 
 
@@ -49,8 +75,8 @@ public class Photo implements Parcelable {
         return id;
     }
 
-    public int getOwnerId() {
-        return owner_id;
+    public long getOwnerSocialId() {
+        return ownerSocialId;
     }
 
     @Nullable
@@ -58,20 +84,28 @@ public class Photo implements Parcelable {
         return text;
     }
 
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
     public long getDate() {
         return date;
     }
 
     public long getSavingDate() {
-        return saving_date;
+        return savingDate;
     }
 
     public boolean getIsInFavorites() {
-        return is_in_favorites;
+        return isInFavorites;
     }
 
     public void setIsInFavorites(boolean isInFavorites) {
-        is_in_favorites = isInFavorites;
+        this.isInFavorites = isInFavorites;
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -93,10 +127,32 @@ public class Photo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(url);
-        dest.writeInt(owner_id);
+        dest.writeLong(ownerSocialId);
         dest.writeString(text);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
         dest.writeLong(date);
-        dest.writeLong(saving_date);
-        dest.writeByte((byte) (is_in_favorites ? 1 : 0));
+        dest.writeLong(savingDate);
+        dest.writeByte((byte) (isInFavorites ? 1 : 0));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof Photo)) {
+            return false;
+        }
+        Photo rhs = ((Photo) other);
+        return (ownerSocialId == rhs.ownerSocialId) && ObjectsCompat.equals(url, rhs.url)
+                && ObjectsCompat.equals(text, rhs.text);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (int) (31 * result + ownerSocialId);
+        return 31 * result + Arrays.hashCode(new Object[]{url, text});
     }
 }

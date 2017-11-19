@@ -1,68 +1,87 @@
 package com.alexdev.photomap.models;
 
 
-import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.Locale;
 
 public class User implements Parcelable {
 
     private static final String URL_PATTERN = "https://vk.com/id%d";
 
-    private final int id;
-    private final String first_name;
-    private final String last_name;
+    private transient final int id;
+    @SerializedName("id")
+    @Expose
+    private final long socialId;
+    @SerializedName("first_name")
+    @Expose
+    @NonNull
+    private final String firstName;
+    @SerializedName("last_name")
+    @Expose
+    @NonNull
+    private final String lastName;
+    @SerializedName("photo_400_orig")
+    @Expose
+    @NonNull
     private final String avatar;
-    private final String url;
 
-    public User(int id, String firstName, String lastName, String avatar, String url) {
+    public User(int id, long socialId, @NonNull String firstName, @NonNull String lastName, @NonNull String avatar) {
         this.id = id;
-        this.first_name = firstName;
-        this.last_name = lastName;
+        this.socialId = socialId;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.avatar = avatar;
-        this.url = url;
     }
 
-    @SuppressLint("DefaultLocale")
-    public User(int id, String firstName, String lastName, String avatar) {
-        this(id, firstName, lastName, avatar, String.format(URL_PATTERN, id));
+    public User(long socialId, @NonNull String firstName, @NonNull String lastName, @NonNull String avatar) {
+        this(0, socialId, firstName, lastName, avatar);
     }
 
     private User(Parcel in) {
         id = in.readInt();
-        first_name = in.readString();
-        last_name = in.readString();
+        socialId = in.readLong();
+        firstName = in.readString();
+        lastName = in.readString();
         avatar = in.readString();
-        url = in.readString();
     }
 
     public int getId() {
         return id;
     }
 
+    public long getSocialId() {
+        return socialId;
+    }
+
     public String getFirstName() {
-        return first_name;
+        return firstName;
     }
 
     public String getLastName() {
-        return last_name;
+        return lastName;
     }
 
     public String getName() {
-        return first_name + ' ' + last_name;
+        return firstName + ' ' + lastName;
     }
 
     public String getUrl() {
-        return url;
+        return String.format(Locale.getDefault(), URL_PATTERN, socialId);
     }
 
+    @NonNull
     public String getAvatar() {
         return avatar;
     }
 
-    @SuppressLint("DefaultLocale")
-    public static String getUrlByID(int userId) {
-        return String.format(URL_PATTERN, userId);
+    public static String getUrlBySocialID(long userSocialId) {
+        return String.format(Locale.getDefault(), URL_PATTERN, userSocialId);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -83,9 +102,9 @@ public class User implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
-        dest.writeString(first_name);
-        dest.writeString(last_name);
+        dest.writeLong(socialId);
+        dest.writeString(firstName);
+        dest.writeString(lastName);
         dest.writeString(avatar);
-        dest.writeString(url);
     }
 }

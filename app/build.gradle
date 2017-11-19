@@ -13,6 +13,8 @@ android {
         resValue "string", "google_maps_key", (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
         buildConfigField "String", "APP_DATABASE_NAME", "\"app_database\""
         buildConfigField "int", "APP_DATABASE_VERSION", "1"
+        buildConfigField "String", "VK_API_SERVICE_KEY", "\"${project.properties.get("VK_API_SERVICE_KEY") ?: ""}\""
+        buildConfigField "String", "VK_API_VERSION", "\"5.69\""
     }
     buildTypes {
         release {

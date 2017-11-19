@@ -58,13 +58,13 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
 
     {
         mFavoritesList.add(new Pair<>(new User(1, "pavel", "durov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(1, "https://b1.filmpro.ru/c/455897.700xp.jpg", 1, "Lorem ipsum dolor sit amet", 1509980225786L, 0L, true)));
+                new Photo(1, "https://b1.filmpro.ru/c/455897.700xp.jpg", 1, "Lorem ipsum dolor sit amet", 0, 0, 1509980225786L, 0L, true)));
         mFavoritesList.add(new Pair<>(new User(150150, "nik", "safronov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(2, "https://b1.filmpro.ru/c/455097.700xp.jpg", 150150, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit", 1509980225786L, 0L, true)));
+                new Photo(2, "https://b1.filmpro.ru/c/455097.700xp.jpg", 150150, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit", 0, 0, 1509980225786L, 0L, true)));
         mFavoritesList.add(new Pair<>(new User(1, "pavel", "durov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(1, "https://b1.filmpro.ru/c/45587.700xp.jpg", 1, "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium", 1509980225786L, 0L, true)));
+                new Photo(1, "https://b1.filmpro.ru/c/45587.700xp.jpg", 1, "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium", 0, 0, 1509980225786L, 0L, true)));
         mFavoritesList.add(new Pair<>(new User(150150, "nik", "safronov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(2, "https://b1.filmpro.ru/c/45897.700xp.jpg", 150150, null, 1509980225786L, 0L, true)));
+                new Photo(2, "https://b1.filmpro.ru/c/45897.700xp.jpg", 150150, null, 0, 0, 1509980225786L, 0L, true)));
     }
 
     public FavoritesFragment() {
