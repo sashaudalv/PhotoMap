@@ -12,25 +12,34 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.alexdev.photomap.App;
 import com.alexdev.photomap.R;
 import com.alexdev.photomap.models.User;
+import com.alexdev.photomap.network.NetworkManager;
+import com.alexdev.photomap.network.callbacks.UserLoadListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class UserDetailsActivity extends AppCompatActivity {
+public class UserDetailsActivity extends AppCompatActivity implements UserLoadListener {
 
     public static final String EXTRA_USER = "extra_user";
     public static final String EXTRA_USER_SOCIAL_ID = "extra_user_social_id";
 
     private static final String VK_APP_PACKAGE_ID = "com.vkontakte.android";
 
+    @Inject
+    NetworkManager mNetworkManager;
+
     private User mUser;
-    private int mUserId;
+    private long mUserId;
     @BindView(R.id.layout_container)
     ViewGroup mLayoutContainer;
     @BindView(R.id.avatar_image)
@@ -42,6 +51,8 @@ public class UserDetailsActivity extends AppCompatActivity {
     @BindView(R.id.progress)
     ProgressBar mProgressBar;
 
+    private boolean isVisible;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,14 +62,15 @@ public class UserDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+        App.get(getApplicationContext()).getAppComponent().inject(this);
 
-        mUserId = getIntent().getIntExtra(EXTRA_USER_SOCIAL_ID, -1);
+        mUserId = getIntent().getLongExtra(EXTRA_USER_SOCIAL_ID, -1);
         mUser = getIntent().getParcelableExtra(EXTRA_USER);
 
         if (mUser == null) {
             mLayoutContainer.setVisibility(View.GONE);
             mProgressBar.setVisibility(View.VISIBLE);
-            //TODO loadUser
+            mNetworkManager.loadUser(mUserId, this);
         } else {
             initViews();
         }
@@ -72,6 +84,25 @@ public class UserDetailsActivity extends AppCompatActivity {
 
         mNameTextView.setText(mUser.getName());
         mVkOpenButton.setOnClickListener(view -> openUserLink(mUser.getUrl()));
+    }
+
+    @Override
+    public void onUserLoadComplete(User user) {
+        mUser = user;
+        mLayoutContainer.setVisibility(View.VISIBLE);
+        mProgressBar.setVisibility(View.GONE);
+        initViews();
+    }
+
+    @Override
+    public void onUserLoadError() {
+        mProgressBar.setVisibility(View.GONE);
+        Toast.makeText(this, R.string.toast_network_error, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean isListenerVisible() {
+        return isVisible;
     }
 
     @Override
@@ -99,4 +130,15 @@ public class UserDetailsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isVisible = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isVisible = false;
+    }
 }
