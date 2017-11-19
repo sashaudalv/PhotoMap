@@ -2,15 +2,119 @@ package com.alexdev.photomap.database;
 
 
 import android.support.annotation.NonNull;
+import android.util.Pair;
+
+import com.alexdev.photomap.database.callbacks.FavoritesVisibleListener;
+import com.alexdev.photomap.database.callbacks.UserLoadListener;
+import com.alexdev.photomap.database.callbacks.UserSaveListener;
+import com.alexdev.photomap.database.entities.UserPhotoPair;
+import com.alexdev.photomap.models.Photo;
+import com.alexdev.photomap.models.User;
+
+import io.reactivex.Completable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public final class DatabaseManagerImpl implements DatabaseManager {
 
     private final AppDatabase mDatabase;
-    
+
     public DatabaseManagerImpl(@NonNull AppDatabase database) {
         mDatabase = database;
     }
 
+    @Override
+    public void saveUser(User user) {
+        com.alexdev.photomap.database.entities.User userEntity = new com.alexdev.photomap.database.entities.User(user);
+        Completable.fromAction(() -> mDatabase.userDao().insertUser(userEntity))
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
 
+    @Override
+    public void saveUser(User user, UserSaveListener listener) {
+        com.alexdev.photomap.database.entities.User userEntity = new com.alexdev.photomap.database.entities.User(user);
+        Completable.fromAction(() -> mDatabase.userDao().insertUser(userEntity))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(listener::onUserSaveComplete);
+
+    }
+
+    @Override
+    public void savePhoto(Photo photo) {
+        com.alexdev.photomap.database.entities.Photo photoEntity = new com.alexdev.photomap.database.entities.Photo(photo);
+        photoEntity.setSavingDateAsCurrentTime();
+        Completable.fromAction(() -> mDatabase.photoDao().insertPhoto(photoEntity))
+                .subscribeOn(Schedulers.io())
+                .subscribe();
+    }
+
+    @Override
+    public void saveToFavorites(User user, Photo photo) {
+        com.alexdev.photomap.database.entities.User userEntity = new com.alexdev.photomap.database.entities.User(user);
+        com.alexdev.photomap.database.entities.Photo photoEntity = new com.alexdev.photomap.database.entities.Photo(photo);
+        if (photoEntity.getSaving_date() == 0) photoEntity.setSavingDateAsCurrentTime();
+        Completable.fromAction(() -> mDatabase.userDao().insertUser(userEntity))
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        () -> Completable.fromAction(() -> mDatabase.photoDao().insertPhoto(photoEntity))
+                                .subscribeOn(Schedulers.io())
+                );
+    }
+
+    @Override
+    public void saveToFavorites(Pair<User, Photo> pair) {
+        saveToFavorites(pair.first, pair.second);
+    }
+
+    @Override
+    public void deleteFromFavorites(User user, Photo photo) {
+        com.alexdev.photomap.database.entities.User userEntity = new com.alexdev.photomap.database.entities.User(user);
+        com.alexdev.photomap.database.entities.Photo photoEntity = new com.alexdev.photomap.database.entities.Photo(photo);
+        Completable.fromAction(() -> mDatabase.photoDao().deletePhoto(photoEntity))
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        () -> Completable.fromAction(() -> mDatabase.userDao().deleteUser(userEntity))
+                                .subscribeOn(Schedulers.io())
+                                .subscribe()
+                );
+    }
+
+    @Override
+    public void deleteFromFavorites(Pair<User, Photo> pair) {
+        deleteFromFavorites(pair.first, pair.second);
+    }
+
+    @Override
+    public void getUser(long userSocialId, UserLoadListener listener) {
+        mDatabase.userDao().getUserBySocialId(userSocialId)
+                .subscribeOn(Schedulers.io())
+                .map(com.alexdev.photomap.database.entities.User::asUserModel)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        listener::onUserLoadComplete,
+                        error -> listener.onUserLoadError()
+                );
+    }
+
+    @Override
+    public void getFavorites(FavoritesVisibleListener listener) {
+//        maybe return subscriber to control flowable list of photos...? and so subscribe at new thread instead io
+        mDatabase.photoDao().getAllUserAndPhotoPairs()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .toObservable()
+                .flatMapIterable(pairs -> pairs)
+                .map(UserPhotoPair::getAsPair)
+                .toList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        pairs -> {
+                            if (listener.isListenerVisible())
+                                listener.onFavoritesLoadComplete(pairs);
+                        }
+                );
+    }
 
 }

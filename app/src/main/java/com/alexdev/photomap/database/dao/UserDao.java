@@ -14,15 +14,15 @@ import io.reactivex.Single;
 public interface UserDao {
 
     @Insert
-    void insert(User user);
+    void insertUser(User user);
 
-    @Query("SELECT * FROM user WHERE id = :userId")
-    Single<User> getById(int userId);
+    @Query("SELECT * FROM user WHERE user_id = :userId")
+    Single<User> getUserById(int userId);
 
     @Query("SELECT * FROM user WHERE social_id = :socialId")
-    Single<User> getBySocialId(int socialId);
+    Single<User> getUserBySocialId(long socialId);
 
     @Delete
-    void delete(User user);
+    void deleteUser(User user);
 
 }

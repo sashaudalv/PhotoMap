@@ -7,28 +7,33 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
 import com.alexdev.photomap.database.entities.Photo;
+import com.alexdev.photomap.database.entities.UserPhotoPair;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.Single;
 
 @Dao
 public interface PhotoDao {
 
     @Insert
-    void insert(Photo photo);
+    void insertPhoto(Photo photo);
 
-    @Query("SELECT * FROM photo WHERE id = :photoId")
-    Single<Photo> getById(int photoId);
+    @Query("SELECT * FROM photo WHERE photo_id = :photoId")
+    Single<Photo> getPhotoById(int photoId);
 
     @Query("SELECT * FROM photo ORDER BY saving_date DESC")
-    Flowable<List<Photo>> getAll();
+    Single<List<Photo>> getAllPhotos();
 
     @Query("SELECT * FROM photo ORDER BY saving_date DESC LIMIT :limit")
-    Flowable<List<Photo>> getAll(int limit);
+    Single<List<Photo>> getAllPhotos(int limit);
+
+    @Query("SELECT * FROM photo " +
+            "INNER JOIN user ON owner_social_id = social_id " +
+            "ORDER BY saving_date DESC")
+    Single<List<UserPhotoPair>> getAllUserAndPhotoPairs();
 
     @Delete
-    void delete(Photo photo);
+    void deletePhoto(Photo photo);
 
 }
