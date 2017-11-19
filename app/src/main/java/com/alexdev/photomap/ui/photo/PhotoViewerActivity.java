@@ -102,7 +102,7 @@ public class PhotoViewerActivity extends AppCompatActivity {
     private void openUserDetails() {
         Intent intent = new Intent(this, UserDetailsActivity.class);
         if (mUser == null) {
-            intent.putExtra(UserDetailsActivity.EXTRA_USER_SOCIAL_ID, mPhoto.getOwnerId());
+            intent.putExtra(UserDetailsActivity.EXTRA_USER_SOCIAL_ID, mPhoto.getOwnerSocialId());
         } else {
             intent.putExtra(UserDetailsActivity.EXTRA_USER, mUser);
         }
