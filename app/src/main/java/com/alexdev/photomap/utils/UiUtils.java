@@ -10,7 +10,9 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 @UiThread
 public final class UiUtils {
 
-    private UiUtils() {}
+    private UiUtils() {
+
+    }
 
     public static void switchDrawableTint(Drawable drawable, Context context, boolean switcher,
                                           @ColorRes int colorResId1, @ColorRes int colorResId2) {

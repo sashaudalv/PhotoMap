@@ -27,6 +27,7 @@ public final class Utils {
     public static final String TEMPORARY_FILE_NAME = "temporary_file.jpg";
 
     private Utils() {
+
     }
 
     @NonNull
