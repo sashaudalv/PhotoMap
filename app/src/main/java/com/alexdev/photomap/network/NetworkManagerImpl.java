@@ -7,6 +7,7 @@ import com.alexdev.photomap.BuildConfig;
 import com.alexdev.photomap.database.DatabaseManager;
 import com.alexdev.photomap.database.callbacks.UserSaveListener;
 import com.alexdev.photomap.models.Photo;
+import com.alexdev.photomap.models.User;
 import com.alexdev.photomap.network.callbacks.PhotosLoadListener;
 import com.alexdev.photomap.network.callbacks.UserLoadListener;
 import com.alexdev.photomap.network.responses.PhotosResponseBody;
@@ -39,6 +40,20 @@ public final class NetworkManagerImpl implements NetworkManager {
 
     @Override
     public void loadUser(long userSocialId, UserLoadListener listener) {
+        mDatabaseManager.getUser(userSocialId, new com.alexdev.photomap.database.callbacks.UserLoadListener() {
+            @Override
+            public void onUserLoadComplete(User user) {
+                if (listener.isListenerVisible()) listener.onUserLoadComplete(user);
+            }
+
+            @Override
+            public void onUserLoadError() {
+                loadUserDirectlyFromNetwork(userSocialId, listener);
+            }
+        });
+    }
+
+    public void loadUserDirectlyFromNetwork(long userSocialId, UserLoadListener listener) {
         mVkApiService.getUsers(new long[]{userSocialId}, VK_USER_EXTRA_FIELDS, VK_API_VERSION, VK_API_SERVICE_KEY)
                 .subscribeOn(Schedulers.io())
                 .map(Response::getResponseBody)

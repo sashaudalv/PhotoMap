@@ -8,7 +8,7 @@ import com.alexdev.photomap.models.User;
 
 import java.util.List;
 
-public interface FavoritesVisibleListener extends VisibleListener {
+public interface FavoritesLoadListener extends VisibleListener {
 
     void onFavoritesLoadComplete(List<Pair<User, Photo>> favoriteList);
 

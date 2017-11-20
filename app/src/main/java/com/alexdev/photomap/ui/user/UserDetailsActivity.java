@@ -51,7 +51,7 @@ public class UserDetailsActivity extends AppCompatActivity implements UserLoadLi
     @BindView(R.id.progress)
     ProgressBar mProgressBar;
 
-    private boolean isVisible;
+    private boolean mIsVisible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +62,7 @@ public class UserDetailsActivity extends AppCompatActivity implements UserLoadLi
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
         App.get(getApplicationContext()).getAppComponent().inject(this);
 
         mUserId = getIntent().getLongExtra(EXTRA_USER_SOCIAL_ID, -1);
@@ -102,7 +103,7 @@ public class UserDetailsActivity extends AppCompatActivity implements UserLoadLi
 
     @Override
     public boolean isListenerVisible() {
-        return isVisible;
+        return mIsVisible;
     }
 
     @Override
@@ -133,12 +134,12 @@ public class UserDetailsActivity extends AppCompatActivity implements UserLoadLi
     @Override
     protected void onResume() {
         super.onResume();
-        isVisible = true;
+        mIsVisible = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        isVisible = false;
+        mIsVisible = false;
     }
 }

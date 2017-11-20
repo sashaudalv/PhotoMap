@@ -2,9 +2,9 @@ package com.alexdev.photomap.database;
 
 
 import android.support.annotation.NonNull;
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
-import com.alexdev.photomap.database.callbacks.FavoritesVisibleListener;
+import com.alexdev.photomap.database.callbacks.FavoritesLoadListener;
 import com.alexdev.photomap.database.callbacks.UserLoadListener;
 import com.alexdev.photomap.database.callbacks.UserSaveListener;
 import com.alexdev.photomap.database.entities.UserPhotoPair;
@@ -28,6 +28,7 @@ public final class DatabaseManagerImpl implements DatabaseManager {
         com.alexdev.photomap.database.entities.User userEntity = new com.alexdev.photomap.database.entities.User(user);
         Completable.fromAction(() -> mDatabase.userDao().insertUser(userEntity))
                 .subscribeOn(Schedulers.io())
+                .onErrorComplete()
                 .subscribe();
     }
 
@@ -37,6 +38,7 @@ public final class DatabaseManagerImpl implements DatabaseManager {
         Completable.fromAction(() -> mDatabase.userDao().insertUser(userEntity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .onErrorComplete()
                 .subscribe(listener::onUserSaveComplete);
 
     }
@@ -44,7 +46,7 @@ public final class DatabaseManagerImpl implements DatabaseManager {
     @Override
     public void savePhoto(Photo photo) {
         com.alexdev.photomap.database.entities.Photo photoEntity = new com.alexdev.photomap.database.entities.Photo(photo);
-        photoEntity.setSavingDateAsCurrentTime();
+        if (photoEntity.getSaving_date() == 0) photoEntity.setSavingDateAsCurrentTime();
         Completable.fromAction(() -> mDatabase.photoDao().insertPhoto(photoEntity))
                 .subscribeOn(Schedulers.io())
                 .subscribe();
@@ -53,14 +55,10 @@ public final class DatabaseManagerImpl implements DatabaseManager {
     @Override
     public void saveToFavorites(User user, Photo photo) {
         com.alexdev.photomap.database.entities.User userEntity = new com.alexdev.photomap.database.entities.User(user);
-        com.alexdev.photomap.database.entities.Photo photoEntity = new com.alexdev.photomap.database.entities.Photo(photo);
-        if (photoEntity.getSaving_date() == 0) photoEntity.setSavingDateAsCurrentTime();
         Completable.fromAction(() -> mDatabase.userDao().insertUser(userEntity))
                 .subscribeOn(Schedulers.io())
-                .subscribe(
-                        () -> Completable.fromAction(() -> mDatabase.photoDao().insertPhoto(photoEntity))
-                                .subscribeOn(Schedulers.io())
-                );
+                .onErrorComplete()
+                .subscribe(() -> savePhoto(photo));
     }
 
     @Override
@@ -77,6 +75,7 @@ public final class DatabaseManagerImpl implements DatabaseManager {
                 .subscribe(
                         () -> Completable.fromAction(() -> mDatabase.userDao().deleteUser(userEntity))
                                 .subscribeOn(Schedulers.io())
+                                .onErrorComplete()
                                 .subscribe()
                 );
     }
@@ -99,8 +98,7 @@ public final class DatabaseManagerImpl implements DatabaseManager {
     }
 
     @Override
-    public void getFavorites(FavoritesVisibleListener listener) {
-//        maybe return subscriber to control flowable list of photos...? and so subscribe at new thread instead io
+    public void getFavorites(FavoritesLoadListener listener) {
         mDatabase.photoDao().getAllUserAndPhotoPairs()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())

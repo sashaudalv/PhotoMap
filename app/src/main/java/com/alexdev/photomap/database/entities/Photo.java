@@ -9,19 +9,18 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-@Entity(indices = {@Index(value = {"saving_date"})})
+@Entity(indices = {@Index(value = {"saving_date"})},
+        foreignKeys = {@ForeignKey(entity = User.class,
+                parentColumns = {"social_id"},
+                childColumns = {"owner_social_id"},
+                onDelete = ForeignKey.RESTRICT,
+                onUpdate = ForeignKey.RESTRICT)})
 public class Photo {
 
     @PrimaryKey(autoGenerate = true)
     private int photo_id;
     @NonNull
     private String url;
-    @ForeignKey(entity = User.class,
-            parentColumns = {"social_id"},
-            childColumns = {"owner_social_id"},
-            onDelete = ForeignKey.RESTRICT,
-            onUpdate = ForeignKey.CASCADE,
-            deferred = true)
     private long owner_social_id;
     @Nullable
     private String text;

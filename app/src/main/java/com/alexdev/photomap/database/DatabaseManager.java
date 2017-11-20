@@ -1,9 +1,9 @@
 package com.alexdev.photomap.database;
 
 
-import android.util.Pair;
+import android.support.v4.util.Pair;
 
-import com.alexdev.photomap.database.callbacks.FavoritesVisibleListener;
+import com.alexdev.photomap.database.callbacks.FavoritesLoadListener;
 import com.alexdev.photomap.database.callbacks.UserLoadListener;
 import com.alexdev.photomap.database.callbacks.UserSaveListener;
 import com.alexdev.photomap.models.Photo;
@@ -27,6 +27,6 @@ public interface DatabaseManager {
 
     void getUser(long userSocialId, UserLoadListener listener);
 
-    void getFavorites(FavoritesVisibleListener listener);
+    void getFavorites(FavoritesLoadListener listener);
 
 }
