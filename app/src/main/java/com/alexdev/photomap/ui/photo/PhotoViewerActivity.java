@@ -112,13 +112,15 @@ public class PhotoViewerActivity extends AppCompatActivity implements UserLoadLi
         if (mPhoto.getIsInFavorites()) {
             mDatabaseManager.deleteFromFavorites(mUser, mPhoto);
             handleLikeButton();
-        } else {
-            if (mUser == null) {
-                mNetworkManager.loadUser(mPhoto.getOwnerSocialId(), this);
-            } else {
-                mDatabaseManager.saveToFavorites(mUser, mPhoto);
-                handleLikeButton();
+        } else if (mUser == null) {
+            if (mPhoto.getOwnerSocialId() < 0) {
+                handleGroupPhotoOwner();
+                return;
             }
+            mNetworkManager.loadUser(mPhoto.getOwnerSocialId(), this);
+        } else {
+            mDatabaseManager.saveToFavorites(mUser, mPhoto);
+            handleLikeButton();
         }
     }
 
@@ -146,6 +148,10 @@ public class PhotoViewerActivity extends AppCompatActivity implements UserLoadLi
     }
 
     private void openUserDetails() {
+        if (mPhoto.getOwnerSocialId() < 0) {
+            handleGroupPhotoOwner();
+            return;
+        }
         Intent intent = new Intent(this, UserDetailsActivity.class);
         if (mUser == null) {
             intent.putExtra(UserDetailsActivity.EXTRA_USER_SOCIAL_ID, mPhoto.getOwnerSocialId());
@@ -153,6 +159,10 @@ public class PhotoViewerActivity extends AppCompatActivity implements UserLoadLi
             intent.putExtra(UserDetailsActivity.EXTRA_USER, mUser);
         }
         startActivity(intent);
+    }
+
+    private void handleGroupPhotoOwner() {
+        Toast.makeText(this, R.string.toast_groups_not_supported, Toast.LENGTH_SHORT).show();
     }
 
     private void downloadPhoto() {

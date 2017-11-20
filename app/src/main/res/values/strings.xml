@@ -26,6 +26,7 @@
     <string name="toast_download_error">Download error</string>
     <string name="toast_available_soon">Will be available soon!</string>
     <string name="toast_network_error">Network error</string>
+    <string name="toast_groups_not_supported">Groups are not supported yet</string>
 
     <string name="chooser_title_share_photo">Share photo</string>
 
