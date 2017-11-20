@@ -43,7 +43,7 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
 
         void onItemUserClick(int position);
 
-        void onItemLikeClick(int position);
+        void onItemLikeClick(int position, boolean shouldRemoveData);
 
         void onItemShareClick(int position, Drawable sharingDrawable);
     }
@@ -128,7 +128,7 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
             photo.setIsInFavorites(!photo.getIsInFavorites());
             UiUtils.switchDrawableTint(likeButton.getDrawable(), mContext, photo.getIsInFavorites(),
                     R.color.colorIconGrey, R.color.colorIconRed);
-            mListener.onItemLikeClick(position);
+            mListener.onItemLikeClick(position, !photo.getIsInFavorites());
         });
     }
 

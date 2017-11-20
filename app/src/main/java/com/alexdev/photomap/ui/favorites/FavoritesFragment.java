@@ -19,7 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.alexdev.photomap.App;
 import com.alexdev.photomap.R;
+import com.alexdev.photomap.database.DatabaseManager;
+import com.alexdev.photomap.database.callbacks.FavoritesLoadListener;
 import com.alexdev.photomap.models.Photo;
 import com.alexdev.photomap.models.User;
 import com.alexdev.photomap.ui.interfaces.ReselectableFragment;
@@ -34,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
@@ -41,7 +46,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class FavoritesFragment extends Fragment implements ReselectableFragment, FavoritesListRVAdapter.OnItemClickListener {
+public class FavoritesFragment extends Fragment implements ReselectableFragment, FavoritesListRVAdapter.OnItemClickListener, FavoritesLoadListener {
 
     private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 222;
 
@@ -54,18 +59,11 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
     SwipeRefreshLayout mSwipeRefreshLayout;
     private LayoutManager mLayoutManager;
     private Adapter mAdapter;
-    private List<Pair<User, Photo>> mFavoritesList = new ArrayList<>();
+    private final List<Pair<User, Photo>> mFavoritesList = new ArrayList<>();
 
-    {
-        mFavoritesList.add(new Pair<>(new User(1, "pavel", "durov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(1, "https://b1.filmpro.ru/c/455897.700xp.jpg", 1, "Lorem ipsum dolor sit amet", 0, 0, 1509980225786L, 0L, true)));
-        mFavoritesList.add(new Pair<>(new User(150150, "nik", "safronov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(2, "https://b1.filmpro.ru/c/455097.700xp.jpg", 150150, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit", 0, 0, 1509980225786L, 0L, true)));
-        mFavoritesList.add(new Pair<>(new User(1, "pavel", "durov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(1, "https://b1.filmpro.ru/c/45587.700xp.jpg", 1, "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium", 0, 0, 1509980225786L, 0L, true)));
-        mFavoritesList.add(new Pair<>(new User(150150, "nik", "safronov", "https://i.pinimg.com/originals/7c/c7/a6/7cc7a630624d20f7797cb4c8e93c09c1.png"),
-                new Photo(2, "https://b1.filmpro.ru/c/45897.700xp.jpg", 150150, null, 0, 0, 1509980225786L, 0L, true)));
-    }
+    @Inject
+    DatabaseManager mDatabaseManager;
+
 
     public FavoritesFragment() {
 
@@ -78,6 +76,7 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        App.get(getActivity().getApplicationContext()).getAppComponent().inject(this);
     }
 
     @Override
@@ -97,17 +96,34 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         mFavoritesRV.setLayoutManager(mLayoutManager);
         mAdapter = new FavoritesListRVAdapter(mFavoritesList, getContext(), this);
         mFavoritesRV.setAdapter(mAdapter);
-        if (mFavoritesList.isEmpty()) showEmptyListHint();
         mSwipeRefreshLayout.setOnRefreshListener(this::onRefresh);
+        mSwipeRefreshLayout.setRefreshing(true);
+        mDatabaseManager.getFavorites(this);
         return view;
     }
 
-    private void showEmptyListHint() {
-        mEmptyListHint.setVisibility(View.VISIBLE);
+    private void showEmptyListHint(boolean shouldShow) {
+        mEmptyListHint.setVisibility(shouldShow ? View.VISIBLE : View.GONE);
     }
 
     private void onRefresh() {
-        //TODO try to upload data from db
+        mDatabaseManager.getFavorites(this);
+    }
+
+    @Override
+    public void onFavoritesLoadComplete(List<Pair<User, Photo>> favoriteList) {
+        mFavoritesList.clear();
+        mFavoritesList.addAll(favoriteList);
+        mAdapter.notifyDataSetChanged();
+        if (isVisible()) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            showEmptyListHint(mFavoritesList.isEmpty());
+        }
+    }
+
+    @Override
+    public boolean isListenerVisible() {
+        return isVisible();
     }
 
     @Override
@@ -131,8 +147,12 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
     }
 
     @Override
-    public void onItemLikeClick(int position) {
-        // TODO: add or delete item from db
+    public void onItemLikeClick(int position, boolean shouldRemoveData) {
+        if (shouldRemoveData) {
+            mDatabaseManager.deleteFromFavorites(mFavoritesList.get(position));
+        } else {
+            mDatabaseManager.saveToFavorites(mFavoritesList.get(position));
+        }
     }
 
     @Override
@@ -178,8 +198,8 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
                         error -> Toast.makeText(
                                 getContext(),
                                 R.string.toast_download_error,
-                                Toast.LENGTH_SHORT
-                        ).show()
+                                Toast.LENGTH_SHORT).show()
                 );
     }
+
 }
