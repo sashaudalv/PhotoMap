@@ -25,7 +25,7 @@ public final class NetworkManagerImpl implements NetworkManager {
     private static final String VK_API_SERVICE_KEY = BuildConfig.VK_API_SERVICE_KEY;
     private static final String VK_API_VERSION = BuildConfig.VK_API_VERSION;
     private static final String[] VK_USER_EXTRA_FIELDS = {"photo_400_orig"};
-    private static final int PHOTOS_LOAD_LIMIT = 100;
+    private static final int PHOTOS_LOAD_LIMIT = 300;
 
     private enum VkSortTypes {BY_DATE, BY_LIKES_COUNT}
 

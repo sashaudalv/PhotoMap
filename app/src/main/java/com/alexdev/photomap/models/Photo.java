@@ -3,9 +3,11 @@ package com.alexdev.photomap.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ObjectsCompat;
 
+import com.alexdev.photomap.utils.Utils;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -22,7 +24,7 @@ public class Photo implements Parcelable {
     private final long ownerSocialId;
     @SerializedName("text")
     @Expose
-    @Nullable
+    @NonNull
     private final String text;
     @SerializedName("lat")
     @Expose
@@ -36,7 +38,7 @@ public class Photo implements Parcelable {
     private transient long savingDate;
     private transient boolean isInFavorites;
 
-    public Photo(int id, String url, long ownerSocialId, @Nullable String text, double latitude,
+    public Photo(int id, String url, long ownerSocialId, @NonNull String text, double latitude,
                  double longitude, long date, long savingDate, boolean isInFavorites) {
         this.id = id;
         this.url = url;
@@ -49,7 +51,7 @@ public class Photo implements Parcelable {
         this.isInFavorites = isInFavorites;
     }
 
-    public Photo(String url, long ownerSocialId, @Nullable String text, double latitude,
+    public Photo(String url, long ownerSocialId, @NonNull String text, double latitude,
                  double longitude, long date) {
         this(0, url, ownerSocialId, text, latitude, longitude, date, 0L, false);
     }
@@ -79,7 +81,7 @@ public class Photo implements Parcelable {
         return ownerSocialId;
     }
 
-    @Nullable
+    @NonNull
     public String getText() {
         return text;
     }
@@ -92,8 +94,16 @@ public class Photo implements Parcelable {
         return longitude;
     }
 
+    public LatLng getLatLng() {
+        return new LatLng(latitude, longitude);
+    }
+
     public long getDate() {
         return date;
+    }
+
+    public long getConvertedDate() {
+        return date * Utils.UNIX_TIMESTAMP_CONVERSION;
     }
 
     public long getSavingDate() {

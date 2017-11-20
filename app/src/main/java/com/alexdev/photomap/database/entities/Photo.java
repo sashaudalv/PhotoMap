@@ -7,7 +7,6 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 @Entity(indices = {@Index(value = {"saving_date"})},
         foreignKeys = {@ForeignKey(entity = User.class,
@@ -22,7 +21,7 @@ public class Photo {
     @NonNull
     private String url;
     private long owner_social_id;
-    @Nullable
+    @NonNull
     private String text;
     private double latitude;
     private double longitude;
@@ -70,12 +69,12 @@ public class Photo {
         this.owner_social_id = owner_social_id;
     }
 
-    @Nullable
+    @NonNull
     public String getText() {
         return text;
     }
 
-    public void setText(@Nullable String text) {
+    public void setText(@NonNull String text) {
         this.text = text;
     }
 

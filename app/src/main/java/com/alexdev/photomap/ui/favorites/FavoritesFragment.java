@@ -46,7 +46,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class FavoritesFragment extends Fragment implements ReselectableFragment, FavoritesListRVAdapter.OnItemClickListener, FavoritesLoadListener {
+public class FavoritesFragment extends Fragment implements ReselectableFragment,
+        FavoritesListRVAdapter.OnItemClickListener, FavoritesLoadListener {
 
     private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 222;
 
@@ -166,7 +167,7 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         User itemUser = mFavoritesList.get(position).first;
         Photo itemPhoto = mFavoritesList.get(position).second;
         String sharingText;
-        if (itemPhoto.getText() == null) {
+        if (itemPhoto.getText().isEmpty()) {
             sharingText = String.format(Locale.getDefault(),
                     getString(R.string.template_sharing_photo_text),
                     itemPhoto.getUrl(), itemUser.getUrl());

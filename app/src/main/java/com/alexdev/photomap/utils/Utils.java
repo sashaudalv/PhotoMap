@@ -23,6 +23,7 @@ import java.util.Locale;
 
 public final class Utils {
 
+    public static final long UNIX_TIMESTAMP_CONVERSION = 1000;
     public static final String FILE_NAME_FORMAT = "%d.jpg";
     public static final String TEMPORARY_FILE_NAME = "temporary_file.jpg";
 

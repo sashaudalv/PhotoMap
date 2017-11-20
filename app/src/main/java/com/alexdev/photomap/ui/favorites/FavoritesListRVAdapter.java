@@ -90,10 +90,10 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
         holder.nameTextView.setText(itemUser.getName());
         holder.dateTextView.setText(
                 SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT)
-                        .format(new Date(itemPhoto.getDate()))
+                        .format(new Date(itemPhoto.getConvertedDate()))
         );
         setPhotoView(holder.photoView, itemPhoto, position);
-        if (itemPhoto.getText() == null) {
+        if (itemPhoto.getText().isEmpty()) {
             holder.photoText.setVisibility(View.GONE);
         } else {
             holder.photoText.setText(itemPhoto.getText());

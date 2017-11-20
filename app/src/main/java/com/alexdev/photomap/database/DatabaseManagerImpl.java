@@ -49,6 +49,7 @@ public final class DatabaseManagerImpl implements DatabaseManager {
         if (photoEntity.getSaving_date() == 0) photoEntity.setSavingDateAsCurrentTime();
         Completable.fromAction(() -> mDatabase.photoDao().insertPhoto(photoEntity))
                 .subscribeOn(Schedulers.io())
+                .onErrorComplete()
                 .subscribe();
     }
 
@@ -99,6 +100,7 @@ public final class DatabaseManagerImpl implements DatabaseManager {
 
     @Override
     public void getFavorites(FavoritesLoadListener listener) {
+        // TODO: 20.11.17 flowable
         mDatabase.photoDao().getAllUserAndPhotoPairs()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
