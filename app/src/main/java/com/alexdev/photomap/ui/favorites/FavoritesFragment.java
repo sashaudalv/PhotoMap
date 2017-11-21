@@ -99,8 +99,13 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         mFavoritesRV.setAdapter(mAdapter);
         mSwipeRefreshLayout.setOnRefreshListener(this::onRefresh);
         mSwipeRefreshLayout.setRefreshing(true);
-        mDatabaseManager.getFavorites(this);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDatabaseManager.getFavorites(this);
     }
 
     private void showEmptyListHint(boolean shouldShow) {
@@ -116,10 +121,8 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         mFavoritesList.clear();
         mFavoritesList.addAll(favoriteList);
         mAdapter.notifyDataSetChanged();
-        if (isVisible()) {
-            mSwipeRefreshLayout.setRefreshing(false);
-            showEmptyListHint(mFavoritesList.isEmpty());
-        }
+        mSwipeRefreshLayout.setRefreshing(false);
+        showEmptyListHint(mFavoritesList.isEmpty());
     }
 
     @Override

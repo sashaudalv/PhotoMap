@@ -17,7 +17,7 @@ import io.reactivex.Single;
 public interface PhotoDao {
 
     @Insert
-    void insertPhoto(Photo photo);
+    Long insertPhoto(Photo photo);
 
     @Query("SELECT * FROM photo WHERE photo_id = :photoId")
     Single<Photo> getPhotoById(int photoId);

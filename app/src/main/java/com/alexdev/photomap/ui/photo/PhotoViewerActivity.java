@@ -133,7 +133,7 @@ public class PhotoViewerActivity extends AppCompatActivity implements UserLoadLi
     @Override
     public void onUserLoadComplete(User user) {
         mUser = user;
-        mDatabaseManager.saveToFavorites(mUser, mPhoto);
+        mDatabaseManager.saveUser(mUser, () -> mDatabaseManager.savePhoto(mPhoto, photo -> mPhoto = photo));
         handleLikeButton();
     }
 
