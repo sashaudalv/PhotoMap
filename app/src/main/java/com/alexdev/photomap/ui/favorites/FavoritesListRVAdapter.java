@@ -96,6 +96,7 @@ public class FavoritesListRVAdapter extends RecyclerView.Adapter<FavoritesListRV
         if (itemPhoto.getText().isEmpty()) {
             holder.photoText.setVisibility(View.GONE);
         } else {
+            holder.photoText.setVisibility(View.VISIBLE);
             holder.photoText.setText(itemPhoto.getText());
         }
         setLikeButton(holder.likeButton, itemPhoto, position);

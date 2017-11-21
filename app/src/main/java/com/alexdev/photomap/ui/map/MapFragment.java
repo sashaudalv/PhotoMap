@@ -112,8 +112,7 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         ButterKnife.bind(this, view);
         mMapView.onCreate(savedInstanceState);
