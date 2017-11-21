@@ -44,6 +44,8 @@ public class PhotoViewerActivity extends AppCompatActivity implements UserLoadLi
 
     public static final String EXTRA_PHOTO = "extra_photo";
     public static final String EXTRA_USER = "extra_user";
+    private static final String PHOTO_SAVED_STATE = "photo_saved_state";
+    private static final String USER_SAVED_STATE = "user_saved_state";
 
     private static final int PERMISSION_REQUEST_ACCESS_WRITE_EXTERNAL_STORAGE = 333;
 
@@ -78,8 +80,13 @@ public class PhotoViewerActivity extends AppCompatActivity implements UserLoadLi
 
         App.get(getApplicationContext()).getAppComponent().inject(this);
 
-        mPhoto = getIntent().getParcelableExtra(EXTRA_PHOTO);
-        mUser = getIntent().getParcelableExtra(EXTRA_USER);
+        if (savedInstanceState == null) {
+            mPhoto = getIntent().getParcelableExtra(EXTRA_PHOTO);
+            mUser = getIntent().getParcelableExtra(EXTRA_USER);
+        } else {
+            mPhoto = savedInstanceState.getParcelable(PHOTO_SAVED_STATE);
+            mUser = savedInstanceState.getParcelable(USER_SAVED_STATE);
+        }
 
         if (mPhoto != null) {
             Picasso.with(this)
@@ -240,4 +247,12 @@ public class PhotoViewerActivity extends AppCompatActivity implements UserLoadLi
         super.onPause();
         mIsVisible = false;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(PHOTO_SAVED_STATE, mPhoto);
+        outState.putParcelable(USER_SAVED_STATE, mUser);
+    }
+
 }
