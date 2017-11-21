@@ -103,11 +103,11 @@ public class MapFragment extends Fragment implements ReselectableFragment, OnMap
                 PERMISSION_REQUEST_ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION);
 
-        if (savedInstanceState != null || !isPermissionGranted) return;
+        if (!isPermissionGranted) return;
 
         mFusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             mLastLocation = location;
-            moveMapCameraToCurrentLocation();
+            if (savedInstanceState == null) moveMapCameraToCurrentLocation();
         });
     }
 
