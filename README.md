@@ -1,2 +1,2 @@
 # PhotoMap
-Vk nearest public photos map display
+App for displaying Vk nearest public photos on Google maps
