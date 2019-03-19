@@ -98,7 +98,6 @@ public class FavoritesFragment extends Fragment implements ReselectableFragment,
         mAdapter = new FavoritesListRVAdapter(mFavoritesList, getContext(), this);
         mFavoritesRV.setAdapter(mAdapter);
         mSwipeRefreshLayout.setOnRefreshListener(this::onRefresh);
-        mSwipeRefreshLayout.setRefreshing(true);
         return view;
     }
 
